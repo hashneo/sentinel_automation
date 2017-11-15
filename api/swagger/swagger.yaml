@@ -1,0 +1,204 @@
+---
+swagger: '2.0'
+info:
+  description: ''
+  version: '0.0.1'
+  title: 'data'
+  termsOfService: ''
+  contact:
+    name: ''
+    email: 'steven.taylor@me.com'
+  license:
+    name: 'Steven Taylor'
+host: localhost
+basePath: /
+schemes:
+- https
+consumes:
+- application/json
+produces:
+- application/json
+
+securityDefinitions:
+  Oauth:
+    type: oauth2
+    scopes:
+      open: no security
+      user: a user
+    flow: implicit
+    authorizationUrl: https://my_aouth/
+
+security:
+  - Oauth: []
+
+paths:
+  /health:
+    x-swagger-router-controller: health
+    get:
+      tags:
+      - health
+      operationId: health
+      security:
+      - Oauth:
+        - open
+      responses:
+        200:
+          description: health information
+          schema:
+            $ref: '#/definitions/Status'
+        default:
+          $ref: '#/responses/Error'
+
+  /automation:
+      x-swagger-router-controller: automation
+      get:
+        operationId: getAutomations
+        security:
+        - Oauth:
+          - open
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+      post:
+        operationId: postAutomation
+        security:
+        - Oauth:
+          - open
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+
+  /automation/device/{id}:
+      x-swagger-router-controller: devices
+      get:
+        operationId: getByDeviceId
+        security:
+        - Oauth:
+          - open
+        parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+      post:
+        operationId: postByDeviceId
+        security:
+        - Oauth:
+          - open
+        parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+  /automation/scenes:
+      x-swagger-router-controller: scenes
+      get:
+        operationId: getScenes
+        security:
+        - Oauth:
+          - open
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+  /automation/scenes/{id}:
+      x-swagger-router-controller: scenes
+      get:
+        operationId: getSceneById
+        security:
+        - Oauth:
+          - open
+        parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+  /automation/scenes/{id}/run:
+      x-swagger-router-controller: scenes
+      get:
+        operationId: runSceneById
+        security:
+        - Oauth:
+          - open
+        parameters:
+        - in: path
+          name: id
+          required: true
+          type: string
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
+
+
+  /swagger:
+      x-swagger-pipe: swagger_raw
+
+responses:
+
+  Error:
+    description: error
+    schema:
+      $ref: '#/definitions/Error'
+
+definitions:
+
+  Error:
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+
+
+  Status:
+    type: object
+    additionalProperties: false
+    properties:
+      status:
+        type: string
