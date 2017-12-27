@@ -20,19 +20,6 @@ let moduleName = 'automation';
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(cookieParser());
 
-let appConfig = {
-    appRoot: __dirname, // required config
-    swaggerSecurityHandlers: {
-        Oauth: (req, authOrSecDef, scopesOrApiKey, cb) => {
-            if (scopesOrApiKey === 'open') {
-                cb();
-            }else {
-                cb();
-            }
-        }
-    }
-};
-
 global.consul = consul;
 
 consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
@@ -48,7 +35,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
     config.save = () => {
         return new Promise( (fulfill, reject) => {
-            consul.kv.set( `config/sentinel/${moduleName}`, JSON.stringify(this, null, '\t'), function(err, result) {
+            consul.kv.set( `config/sentinel/${moduleName}`, JSON.stringify(config, null, '\t'), function(err, result) {
                 if (err)
                     return reject(err);
                 fulfill(result);
@@ -71,6 +58,15 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
         }
     );
 
+    const securityHandlers = require('sentinel-common').securityHandlers;
+
+    let appConfig = {
+        appRoot: __dirname, // required config
+        swaggerSecurityHandlers: {
+            Oauth: securityHandlers.Oauth
+        }
+    };
+
     SwaggerExpress.create(appConfig, function (err, swaggerExpress) {
         if (err) {
             throw err;
@@ -82,7 +78,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
         let serviceId = process.env.SERVICE_ID || uuid.v4();
 
-        let port = process.env.PORT || 5000;
+        let port = process.env.PORT || undefined;
         let server = app.listen(port, () => {
 
             let host = process.env.HOST || process.env.SERVICE_NAME || require('ip').address();
@@ -109,7 +105,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
                 setInterval( () => {
                     pub.publish('sentinel.module.running', JSON.stringify(module, '\t'));
-                }, 30000 );
+                }, 5000 );
 
                 if (swaggerExpress.runner.swagger.paths['/health']) {
                     console.log(`you can get /health?id=${serviceId} on port ${port}`);

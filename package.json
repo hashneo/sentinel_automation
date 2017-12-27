@@ -28,7 +28,8 @@
     "superagent-proxy": "^1.0.0",
     "swagger-express-mw": "^0.1.0",
     "swagger-tools": "^0.10.1",
-    "twilio": "^3.9.2"
+    "twilio": "^3.9.2",
+    "sentinel-common": "git+http://gitlab.steventaylor.me/sentinel/common.git"
   },
   "devDependencies": {
     "chai": "^3.5.0",

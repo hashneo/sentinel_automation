@@ -7,7 +7,7 @@ module.exports.getScenes = (req, res) => {
             result.push({'id': global.module.scenes[area][name].id, 'area': area, 'name': global.module.scenes[area][name].name});
         }
     }
-    res.json(200, {'result': 'ok', 'data': result});
+    res.status(200).json( {'result': 'ok', 'data': result});
 };
 
 module.exports.getSceneById = (req, res) => {
@@ -28,12 +28,12 @@ module.exports.getSceneById = (req, res) => {
         }
 
         if (data)
-            res.json(200, data);
+            res.status(200).json( data);
         else
-            res.json(404, {});
+            res.status(404).json( {});
 
     } catch (e) {
-        res.json(500, {"error": e.message});
+        res.status(500).json( {"error": e.message});
     }
 };
 
@@ -55,9 +55,9 @@ module.exports.runSceneById = (req, res) => {
                 break;
         }
 
-        res.json(200, {'result': result});
+        res.status(200).json( {'result': result});
 
     } catch (e) {
-        res.json(500, {"error": e});
+        res.status(500).json( {"error": e});
     }
 };

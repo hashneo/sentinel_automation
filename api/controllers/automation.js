@@ -18,6 +18,33 @@ module.exports.getAutomations = (req, res) => {
     }
 };
 
+function saveAutomation(js) {
+
+    return new Promise( (fulfill, reject) => {
+
+        let subKey =  js.type + '/';
+
+        let path = config.path() + subKey;
+
+        global.consul.kv.del(path + js.id, function (err, data) {
+            if (err)
+                return reject(err);
+
+            global.consul.kv.set(path + js.id, JSON.stringify(js), function (err, data) {
+                if (err)
+                    return reject(err);
+
+                if ( !that.devices[js.device] )
+                    that.devices[js.device] = {};
+                that.devices[js.device][js.id] = js;
+
+                fulfill();
+            });
+        });
+
+    });
+};
+
 module.exports.postAutomation = (req, res) => {
     try {
         let js = req.body;

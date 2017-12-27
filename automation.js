@@ -13,8 +13,7 @@ function automation(config) {
 
     const server = require('./server');
 
-
-    let automationJwt = server.login({'username': '_automation'});
+    const messageHandler = require('./messageHandler');
 
     this.devices = {};
     this.scenes = {};
@@ -108,6 +107,13 @@ function automation(config) {
         request(options, complete);
     };
 
+    this.runForDevice = ( id, currentValue ) =>{
+
+        if ( that.devices[id] ) {
+            that.run(  that.devices[id], currentValue );
+        }
+    };
+
     this.run = ( events, currentValue ) => {
         for( let k in events ){
             that.runInSandbox(events[k], currentValue, false);
@@ -165,34 +171,6 @@ function automation(config) {
             throw err;
 
         return 1;
-    };
-
-    this.saveAutomation = (js) => {
-
-        return new Promise( (fulfill, reject) => {
-
-            let subKey =  js.type + '/';
-
-            let path = config.path() + subKey;
-
-            global.consul.kv.del(path + js.id, function (err, data) {
-                if (err)
-                    return reject(err);
-
-                global.consul.kv.set(path + js.id, JSON.stringify(js), function (err, data) {
-                    if (err)
-                        return reject(err);
-
-                    if ( !that.devices[js.device] )
-                        that.devices[js.device] = {};
-                    that.devices[js.device][js.id] = js;
-
-                    fulfill();
-                });
-            });
-
-        });
-
     };
 
     this.loadAutomation = (path) => {
