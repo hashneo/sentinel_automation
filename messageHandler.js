@@ -26,6 +26,9 @@ function messageHandler() {
         switch (pattern) {
             case 'sentinel.module.start':
             case 'sentinel.module.running':
+                if ( data.name === 'auth'){
+                    global.auth = data;
+                }
                 break;
 
             case 'sentinel.device.insert':
@@ -35,7 +38,9 @@ function messageHandler() {
 
                 // Ignore from server
                 if ( data.module === 'server'){
-                    global.module.runForDevice( data.id, data.value );
+                    if ( global.auth ) {
+                        global.module.runForDevice(data.id, data.value);
+                    }
                 }
 
                 break;

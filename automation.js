@@ -92,7 +92,7 @@ function automation(config) {
     this.findScene = (area, name) => {
         return server.findScene(area, name);
     };
-
+/*
     this.call = (url, complete) => {
 
         let options = {
@@ -106,7 +106,7 @@ function automation(config) {
 
         request(options, complete);
     };
-
+*/
     this.runForDevice = ( id, currentValue ) =>{
 
         if ( that.devices[id] ) {

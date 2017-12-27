@@ -7,7 +7,7 @@ function server() {
 
     function call(url) {
 
-        let baseUrl = 'http://localhost:5000';
+        let baseUrl = global.auth.endpoint;
 
         return new Promise((fulfill, reject) => {
 
@@ -95,8 +95,4 @@ function server() {
 
 }
 
-let s = new server();
-
-module.exports = s;
-
-s.findDeviceByType();
+module.exports = new server();
