@@ -27,6 +27,7 @@ function messageHandler() {
             case 'sentinel.module.start':
             case 'sentinel.module.running':
                 if ( data.name === 'auth'){
+                    console.log( 'Authentication server set to => ' + data.endpoint );
                     global.auth = data;
                 }
                 break;
