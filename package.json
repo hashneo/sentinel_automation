@@ -24,12 +24,13 @@
     "q": "^1.4.1",
     "redis": "^2.6.2",
     "request": "^2.75.0",
+    "sentinel-common": "git+http://gitlab.steventaylor.me/sentinel/common.git",
     "superagent": "^1.8.3",
     "superagent-proxy": "^1.0.0",
     "swagger-express-mw": "^0.1.0",
     "swagger-tools": "^0.10.1",
     "twilio": "^3.9.2",
-    "sentinel-common": "git+http://gitlab.steventaylor.me/sentinel/common.git"
+    "uuid": "^3.1.0"
   },
   "devDependencies": {
     "chai": "^3.5.0",
