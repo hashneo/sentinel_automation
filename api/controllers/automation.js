@@ -1,5 +1,7 @@
 'use strict';
 
+const uuid = require('uuid');
+
 module.exports.getAutomations = (req, res) => {
     try {
         global.module.devices.find().toArray(function (err, sys) {

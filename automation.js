@@ -6,7 +6,7 @@ function automation(config) {
 
     const vm = require('vm');
 
-    const uuid = require('node-uuid');
+    const uuid = require('uuid');
     const mailer = require('nodemailer');
 
     const request = require('request');
