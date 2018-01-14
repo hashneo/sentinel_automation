@@ -1,9 +1,5 @@
 module.exports = function (sandbox, id) {
-
-    var id = id;
-    var sandbox = sandbox;
-    var that = this;
-
+/*const
     this.current = function(){
         var value = undefined;
         sandbox.request('/device/' + id + '/status', function(err, response, body){
@@ -16,16 +12,16 @@ module.exports = function (sandbox, id) {
         require('deasync').loopWhile(function(){return value === undefined;});
         return value;
     };
-
-    this.on = function(complete){
-        sandbox.request('/light/' + id + '/on', complete );
+*/
+    this.on = function(){
+        return sandbox.request('/light/' + id + '/on' );
     };
 
-    this.off = function(complete){
-        sandbox.request('/light/' + id + '/off', complete );
+    this.off = function(){
+        return sandbox.request('/light/' + id + '/off' );
     };
 
-    this.level = function(l, complete){
-        sandbox.request('/light/' + id + '/level/' + l, complete );
+    this.level = function(level){
+        return sandbox.request('/light/' + id + '/level/' + level );
     };
 };

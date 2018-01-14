@@ -1,14 +1,9 @@
 module.exports = function (sandbox, id) {
-
-    var id = id;
-    var sandbox = sandbox;
-    var that = this;
-
-    this.lock = function(complete){
-        sandbox.request('/lock/' + id + '/closed', complete );
+    this.lock = function(){
+        return sandbox.request('/lock/' + id + '/closed' );
     };
 
-    this.unlock = function(complete){
-        sandbox.request('/lock/' + id + '/open', complete );
+    this.unlock = function(){
+        return sandbox.request('/lock/' + id + '/open' );
     };
 };

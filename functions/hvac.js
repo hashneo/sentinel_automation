@@ -1,38 +1,33 @@
 module.exports = function (sandbox, id) {
-
-    var id = id;
-    var sandbox = sandbox;
-    var that = this;
-
     this.mode = new function () {
-        this.heat = function (type, complete) {
-            sandbox.request('/hvac/' + id + '/heat', complete);
+        this.heat = function () {
+            return sandbox.request('/hvac/' + id + '/heat');
         };
 
-        this.cool = function (type, complete) {
-            sandbox.request('/hvac/' + id + '/cool', complete);
+        this.cool = function () {
+            return sandbox.request('/hvac/' + id + '/cool');
         };
 
-        this.auto = function (type, complete) {
-            sandbox.request('/hvac/' + id + '/auto', complete);
+        this.auto = function () {
+            return sandbox.request('/hvac/' + id + '/auto');
         };
 
-        this.home = function (type, complete) {
-            sandbox.request('/hvac/' + id + '/home', complete);
+        this.home = function () {
+            return sandbox.request('/hvac/' + id + '/home');
         };
 
-        this.away = function (type, complete) {
-            sandbox.request('/hvac/' + id + '/away', complete);
+        this.away = function () {
+            return sandbox.request('/hvac/' + id + '/away');
         };
     };
 
     this.set = new function () {
-        this.heat = function (temp, complete) {
-            sandbox.request('/hvac/' + id + '/heat/' + temp, complete);
+        this.heat = function (temp) {
+            return sandbox.request('/hvac/' + id + '/heat/' + temp);
         };
 
-        this.cool = function (temp, complete) {
-            sandbox.request('/hvac/' + id + '/cool/' + temp, complete);
+        this.cool = function (temp) {
+            return sandbox.request('/hvac/' + id + '/cool/' + temp);
         };
     };
 };

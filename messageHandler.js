@@ -26,12 +26,15 @@ function messageHandler() {
         switch (pattern) {
             case 'sentinel.module.start':
             case 'sentinel.module.running':
-                if ( data.name === 'auth'){
-                    console.log( 'Authentication server set to => ' + data.endpoint );
-                    global.auth = data;
+                switch ( data.name ){
+                    case 'auth':
+                        global.auth = data;
+                    break;
+                    case 'server':
+                        global.server = data;
+                        break;
                 }
                 break;
-
             case 'sentinel.device.insert':
                 break;
 

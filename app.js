@@ -120,8 +120,12 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 });
 
 process.on('unhandledRejection', (reason, p) => {
-    console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
-    process.exit(1);
+    if ( reason.stack.includes('(evalmachine.') ){
+
+    } else {
+        console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+        process.exit(1);
+    }
 });
 
 module.exports = app;

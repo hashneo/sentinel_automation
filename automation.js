@@ -81,6 +81,10 @@ function automation(config) {
         });
     };
 
+    this.getDeviceStatus = (id) => {
+        return server.getDeviceStatus(id);
+    };
+
     this.findDeviceByType = (type) => {
         return server.findDeviceByType(type);
     };
@@ -92,85 +96,118 @@ function automation(config) {
     this.findScene = (area, name) => {
         return server.findScene(area, name);
     };
-/*
-    this.call = (url, complete) => {
 
-        let options = {
-            "rejectUnauthorized": false,
-            "url": 'http://127.0.0.1:' + (process.env.PORT) + '' + url,
-            "method": "GET",
-            "headers": {
-                "Authorization": automationJwt
-            }
-        };
-
-        request(options, complete);
+    this.call = (url) => {
+        return server.call(url);
     };
-*/
-    this.runForDevice = ( id, currentValue ) =>{
 
+    this.runForDevice = ( id, currentValue ) =>{
         if ( that.devices[id] ) {
-            that.run(  that.devices[id], currentValue );
+            that.run( that.devices[id], currentValue );
         }
     };
 
     this.run = ( events, currentValue ) => {
+        let p = [];
         for( let k in events ){
-            that.runInSandbox(events[k], currentValue, false);
+            p.push( that.runInSandbox(events[k], currentValue, false) );
         }
+        Promise.all(p);
     };
 
-    this.runInSandbox = (js, currentValue, test) => {
+    this.runInSandbox = (js, currentValue, test, sourceIp) => {
 
-        let SB = require('./sandbox');
-        let sandbox = new SB(this, false);
+        return new Promise( (fulfill, reject) => {
 
-        if ( js.id ) {
-            if ( !this.state[js.id] ) {
-                this.state[js.id] = {};
+            let SB = require('./sandbox');
+            let sandbox = new SB(this, false, sourceIp);
+
+            if (js.id) {
+                if (!this.state[js.id]) {
+                    this.state[js.id] = {};
+                }
+                sandbox['state'] = this.state[js.id];
             }
-            sandbox['state'] = this.state[js.id];
-            //console.log( JSON.stringify( sandbox['state'], null,  '  ' ) );
-        }
 
-        console.log('Running automation id => ' + js.id + ', "' + js.name + '"');
+            console.log('Running automation id => ' + js.id + ', "' + js.name + '"');
 
-        sandbox['_device'] = currentValue;
+            sandbox['_device'] = currentValue;
 
-        let context = new vm.createContext(sandbox);
+            let context = new vm.createContext(sandbox);
 
-        let code = `
-        function __run(){
-             ${js.code} 
-         };
-         __run();
+            let code = `
+            function __run(){ 
+                ${js.code}
+            };
+            
+            process.on('unhandledRejection', (reason, p) => {
+                //console.log('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
+            });
+
+            try{        
+                __run();
+            }
+            catch(err){
+                console.log(err);
+            }
         `;
 
-        let script = new vm.Script( code, {
-                                                lineOffset: 1, // line number offset to be used for stack traces
-                                                columnOffset: 1, // column number offset to be used for stack traces
-                                                displayErrors: true,
-                                                timeout: 30000 // ms
-                                             });
+            let script = new vm.Script(code, {
+                lineOffset: 1, // line number offset to be used for stack traces
+                columnOffset: 1, // column number offset to be used for stack traces
+                displayErrors: true,
+                timeout: 30000 // ms
+            });
 
-        let err = null;
+            let err = null;
 
-        let r = null;
+            let r = null;
 
-        try{
-            r = script.runInContext(context);
-        }
-        catch( e ) {
-            err = e;
-        }
+            try{
+                r = script.runInContext(context);
+            }
+            catch (e) {
+                err = e;
+            }
 
-        if (test)
-            delete this.state[js.id];
+            if (test)
+                delete this.state[js.id];
 
-        if ( err )
-            throw err;
+            if (err)
+                return reject(err);
 
-        return 1;
+            fulfill(r);
+        });
+    };
+
+
+    this.saveAutomation = (js) => {
+
+        return new Promise( (fulfill, reject) => {
+
+            let subKey =  `/${js.type}/`;
+
+            let path = config.path() + subKey;
+
+            console.log('Saving automation id => ' + js.id + ', "' + js.name + '"');
+
+            global.consul.kv.del(path + js.id, function (err, data) {
+                if (err)
+                    return reject(err);
+
+                global.consul.kv.set(path + js.id, JSON.stringify(js), function (err, data) {
+                    if (err)
+                        return reject(err);
+
+                    if ( !that.devices[js.device] )
+                        that.devices[js.device] = {};
+                    that.devices[js.device][js.id] = js;
+
+                    fulfill();
+                });
+            });
+
+        });
     };
 
     this.loadAutomation = (path) => {

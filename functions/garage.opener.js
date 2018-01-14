@@ -1,14 +1,9 @@
 module.exports = function (sandbox, id) {
-
-    var id = id;
-    var sandbox = sandbox;
-    var that = this;
-
-    this.open = function(complete){
-        sandbox.request('/door/' + id + '/open', complete );
+    this.open = function(){
+        return sandbox.request('/door/' + id + '/open' );
     };
 
     this.close = function(complete){
-        sandbox.request('/door/' + id + '/close', complete );
+        return sandbox.request('/door/' + id + '/close' );
     };
 };

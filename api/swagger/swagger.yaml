@@ -55,7 +55,7 @@ paths:
         operationId: getAutomations
         security:
         - Oauth:
-          - open
+          - user
         responses:
           200:
             description: return
@@ -63,12 +63,21 @@ paths:
               type: object
           default:
             $ref: '#/responses/Error'
-
       post:
         operationId: postAutomation
         security:
         - Oauth:
-          - open
+          - user
+        parameters:
+          - in: query
+            required: false
+            name: test
+            type: boolean
+          - in: body
+            name: data
+            required: true
+            schema:
+              $ref: '#/definitions/Automation'
         responses:
           200:
             description: return
@@ -84,7 +93,7 @@ paths:
         operationId: getByDeviceId
         security:
         - Oauth:
-          - open
+          - user
         parameters:
         - in: path
           name: id
@@ -102,7 +111,7 @@ paths:
         operationId: postByDeviceId
         security:
         - Oauth:
-          - open
+          - user
         parameters:
         - in: path
           name: id
@@ -122,7 +131,7 @@ paths:
         operationId: getScenes
         security:
         - Oauth:
-          - open
+          - user
         responses:
           200:
             description: return
@@ -137,7 +146,7 @@ paths:
         operationId: getSceneById
         security:
         - Oauth:
-          - open
+          - user
         parameters:
         - in: path
           name: id
@@ -157,7 +166,7 @@ paths:
         operationId: runSceneById
         security:
         - Oauth:
-          - open
+          - user
         parameters:
         - in: path
           name: id
@@ -202,3 +211,23 @@ definitions:
     properties:
       status:
         type: string
+
+  Automation:
+    type: object
+    additionalProperties: false
+    properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [
+            event
+          ]
+        name:
+          type: string
+        device:
+          type: string
+          format: uuid
+        code:
+          type: string

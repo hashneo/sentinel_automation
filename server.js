@@ -5,21 +5,28 @@ const request = require('request');
 
 function server() {
 
-    function call(url) {
+    const that = this;
 
-        let baseUrl = global.auth.endpoint;
+    this.call = (url) => {
+
+        if ( !url.startsWith('/api/') ){
+            url = '/api' + url;
+        }
 
         return new Promise((fulfill, reject) => {
 
-            auth.login(baseUrl, global.config.auth)
+            auth.login(global.auth.endpoint, global.config.auth)
                 .then((jwt) => {
                     let options = {
-                        uri: baseUrl + url,
+                        uri: global.server.endpoint + url,
                         headers: {
                             'Authorization': `Bearer ${jwt}`
                         },
                         method: 'GET'
                     };
+
+                    console.log('calling => ' + options.uri );
+
                     request(options, (err, resp, body) => {
                         if (err) {
                             return reject(err);
@@ -47,14 +54,25 @@ function server() {
                     reject(err);
                 });
         });
-    }
+    };
 
     function loadSystem() {
-        return call('/api/system');
+        return that.call('/api/system');
     }
 
-    this.findDeviceByType = (type) => {
+    this.getDeviceStatus = (id) => {
+        return new Promise((fulfill, reject) => {
+            this.call(`/api/device/${id}/status`)
+                .then((status) => {
+                    fulfill(status[0]);
+                })
+                .catch((err) => {
+                    reject(err);
+                })
+        });
+    };
 
+    this.findDeviceByType = (type) => {
         return new Promise((fulfill, reject) => {
             loadSystem()
                 .then((system) => {
@@ -89,6 +107,7 @@ function server() {
                 })
         });
     };
+
 
     this.findScene = (area, name) => {
     };

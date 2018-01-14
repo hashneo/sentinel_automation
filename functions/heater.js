@@ -1,26 +1,19 @@
 module.exports = function (sandbox, id) {
-
-    var id = id;
-    var sandbox = sandbox;
-    var that = this;
-
     this.mode = new function () {
-
-        this.auto = function (type, complete) {
-            sandbox.request('/heater/' + id + '/auto', complete);
+        this.auto = function () {
+            return sandbox.request('/heater/' + id + '/auto');
         };
 
-        this.home = function (type, complete) {
-            sandbox.request('/heater/' + id + '/home', complete);
+        this.home = function () {
+            return sandbox.request('/heater/' + id + '/home');
         };
 
-        this.away = function (type, complete) {
-            sandbox.request('/heater/' + id + '/away', complete);
+        this.away = function () {
+            return sandbox.request('/heater/' + id + '/away');
         };
     };
 
-
-    this.set = function (temp, complete) {
-        sandbox.request('/heater/' + id + '/' + temp, complete);
+    this.set = function (temp) {
+        return sandbox.request('/heater/' + id + '/' + temp);
     };
 };

@@ -1,11 +1,46 @@
-function sandbox(automation, test){
+'use strict';
+
+const fs = require('fs');
+const _ = require('lodash');
+const util = require('util');
+
+const redis = require('redis');
+
+let pub = redis.createClient(
+    {
+        host: process.env.REDIS || global.config.redis || '127.0.0.1' ,
+        socket_keepalive: true,
+        retry_unfulfilled_commands: true
+    }
+);
+
+function sandbox(automation, test, sourceIp){
     let that = this;
 
-    const fs = require('fs');
+    this.require = require;
 
     this.console = new function () {
-        this.log = function (m) {
-            console.log(m);
+        this.log = function (...args) {
+            let s = util.format(...args);
+            console.log( s );
+            if (sourceIp) {
+                let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
+                pub.publish('sentinel.automation.log', data);
+            }
+        }
+    };
+
+    this.process = new function() {
+        this.on = function( e, f ){
+
+            if ( e === 'unhandledRejection') {
+                process.on(e,  (reason, p) =>{
+
+                    that.console.log('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
+
+                    f( reason, p );
+                });
+            }
         }
     };
 
@@ -63,7 +98,7 @@ function sandbox(automation, test){
             // If there is no code associated with the
             // device type, return
             if ( parts.length == 0 ){
-                console.log('sandbox => ' + device.type + ' does not have a function code file.');
+                console.log('sandbox getFunctions => ' + device.type + ' does not have a function code file.');
                 return [];
             }
 
@@ -73,51 +108,69 @@ function sandbox(automation, test){
         return require(codeFile);
     }
 
-    this.findDeviceByType = function(type){
-        let devices = automation.findDeviceByType(type);
+    this.findDeviceByType = (type) => {
 
-        for ( let i in devices ){
-            let device = devices[i];
+        return new Promise( (fulfill, reject) => {
 
-            try {
-                let functions = getFunctions(device);
+            automation.findDeviceByType(type)
 
-                let m = new functions(that, device.id);
+                .then((devices) => {
 
-                for (let k in m) {
-                    if (m.hasOwnProperty(k)) {
-                        device[k] = m[k];
-                    }
-                }
-            }
-            catch( e ){
-                console.log('sandbox => ' + e.message);
-            }
+                    devices.forEach((device) => {
 
-        }
+                        try {
+                            let functions = getFunctions(device);
 
-        return devices;
+                            let m = new functions(that, device.id);
+
+                            for (let k in m) {
+                                if (m.hasOwnProperty(k)) {
+                                    device[k] = m[k];
+                                }
+                            }
+                        }
+                        catch (e) {
+                            console.log('sandbox findDeviceByType => ' + e.message);
+                        }
+
+                    });
+                    fulfill(devices);
+                })
+                .catch( (err) =>{
+                    reject(err);
+                })
+        })
     };
 
     this.findDevice = function(name){
-        let device = automation.findDevice(name);
 
-        try {
-            let functions = getFunctions(device);
+        return new Promise( (fulfill, reject) => {
 
-            let m = new functions(that, device.id);
+            automation.findDevice(name)
+                .then ( (device) => {
 
-            for (let k in m) {
-                if (m.hasOwnProperty(k)) {
-                    device[k] = m[k];
-                }
-            }
-        }
-        catch( e ){
-            console.log('sandbox => ' + e.message);
-        }
+                    try {
+                        let functions = getFunctions(device);
 
-        return device;
+                        let m = new functions(that, device.id);
+
+                        for (let k in m) {
+                            if (m.hasOwnProperty(k)) {
+                                device[k] = m[k];
+                            }
+                        }
+                    }
+                    catch (e) {
+                        console.log('sandbox findDevice => ' + e.message);
+                    }
+
+                    fulfill(device);
+
+                })
+                .catch( (err) =>{
+                    reject(err);
+                })
+        });
     };
 
     this.findScene = function(area, name){
@@ -135,29 +188,33 @@ function sandbox(automation, test){
             }
         }
         catch( e ){
-            console.log('sandbox => ' + e.message);
+            console.log('sandbox findScene => ' + e.message);
         }
 
         return scene;
     };
 
-    this.request = function(url, complete){
-        try {
-            if ( test ){
-                if (complete !== undefined) {
-                    complete(null, null, "test");
+    this.request = function(url) {
+
+        return new Promise((fulfill, reject) => {
+
+            try {
+                if (test) {
+                    fulfill();
                 }
-                return;
+                automation.call(url)
+                    .then((data) => {
+                        fulfill(data);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    });
             }
-            automation.call(url, function (err, response, body) {
-                if (complete !== undefined) {
-                    complete(err, response, body);
-                }
-            });
-        }
-        catch(e){
-            console.log('sandbox => ' + e.message);
-        }
+            catch (err) {
+                console.log('sandbox request => ' + err.message);
+                reject(err);
+            }
+        });
     }
 }
 

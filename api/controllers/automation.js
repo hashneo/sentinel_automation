@@ -6,76 +6,56 @@ module.exports.getAutomations = (req, res) => {
     try {
         global.module.devices.find().toArray(function (err, sys) {
             if (err === null) {
-                var result = [];
-                for (var d in sys) {
-
-                }
+                let result = [];
                 res.status(200).json({'result': 'ok', 'data': result});
             } else {
                 throw err;
             }
         });
-    } catch (e) {
-        res.json(500, {"error": e});
+    } catch (err) {
+        res.status(err.code >= 400 && err.code <= 451 ? err.code : 500).json( { code: err.code || 0, message: err.message } );
     }
-};
-
-function saveAutomation(js) {
-
-    return new Promise( (fulfill, reject) => {
-
-        let subKey =  js.type + '/';
-
-        let path = config.path() + subKey;
-
-        global.consul.kv.del(path + js.id, function (err, data) {
-            if (err)
-                return reject(err);
-
-            global.consul.kv.set(path + js.id, JSON.stringify(js), function (err, data) {
-                if (err)
-                    return reject(err);
-
-                if ( !that.devices[js.device] )
-                    that.devices[js.device] = {};
-                that.devices[js.device][js.id] = js;
-
-                fulfill();
-            });
-        });
-
-    });
 };
 
 module.exports.postAutomation = (req, res) => {
-    try {
-        let js = req.body;
 
-        if (!js.id)
-            js.id = uuid.v4();
+    let js = req.swagger.params.data.value;
+    let test = req.swagger.params.test.value;
 
-        let status = server.getDeviceStatus(js.device);
+    if (!js.id)
+        js.id = uuid.v4();
 
-        let result = that.runInSandbox(js, status || {}, true);
+    global.module.getDeviceStatus(js.device)
+        .then( (status) =>{
 
-        if (js.test){
-            res.json(200, {'result': result});
-            return;
-        }
+            let source =  req.cookies['connect.sid']; //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-        delete js.test;
+            return global.module.runInSandbox(js, status || {}, false, source);
+        })
+        .then( (result) => {
 
-        //let subKey =  js.type + '/device/' + js.device + '/events/';
+            return new Promise((fulfill, reject) => {
 
-        saveAutomation(js)
-            .then( () =>{
-                res.json(200, {'id': js.id, 'result': result});
+                if (test) {
+                    return fulfill(result)
+                }
+                global.module.saveAutomation(js)
+                    .then(() => {
+                        fulfill(result);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
             })
-            .catch( (e) => {
-                throw e;
-            })
+        })
+        .then( (result) => {
+            res.status(200).json( {'id': js.id, 'result': result} );
+        })
+        .catch( (err) => {
+            res.status(err.code >= 400 && err.code <= 451 ? err.code : 500).json({
+                code: err.code || 0,
+                message: err.message
+            });
+        });
 
-    } catch (e) {
-        res.json(500, {"error": e.message});
-    }
 };
