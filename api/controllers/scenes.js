@@ -12,13 +12,15 @@ module.exports.getScenes = (req, res) => {
 
 module.exports.getSceneById = (req, res) => {
 
+    let id = req.swagger.params.id.value;
+    
     try {
         let data;
 
         for (let area in global.module.scenes) {
             for (let name in global.module.scenes[area]) {
-                if (global.module.scenes[area][name].id === req.params.id) {
-                    let file = path.join(__dirname, 'automation', 'scenes', req.params.id + '.json');
+                if (global.module.scenes[area][name].id === id) {
+                    let file = path.join(__dirname, 'automation', 'scenes', id + '.json');
                     data = fs.readFileSync(file, {'encoding': 'utf-8'});
                     data = JSON.parse(data);
                     break;
@@ -39,13 +41,15 @@ module.exports.getSceneById = (req, res) => {
 
 module.exports.runSceneById = (req, res) => {
 
+    let id = req.swagger.params.id.value;
+    
     try {
         let result;
         let found = false;
 
         for (let area in global.module.scenes) {
             for (let name in global.module.scenes[area]) {
-                if (global.module.scenes[area][name].id === req.params.id) {
+                if (global.module.scenes[area][name].id === id) {
                     result = global.module.runInSandbox(global.module.scenes[area][name], {}, false);
                     found = true;
                     break;
