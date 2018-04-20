@@ -49,6 +49,11 @@ spec:
             -
               containerPort: 5000
               protocol: TCP
+          resources:
+              limits:
+                  memory: "512Mi"
+              requests:
+                  memory: "512Mi"
       imagePullSecrets:
       - name: regcred
       nodeSelector:

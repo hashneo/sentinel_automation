@@ -4,8 +4,6 @@ function automation(config) {
         return new automation(config)
     }
 
-    const vm = require('vm');
-
     const uuid = require('uuid');
     const mailer = require('nodemailer');
 
@@ -14,6 +12,8 @@ function automation(config) {
     const server = require('./server');
 
     const messageHandler = require('./messageHandler');
+
+    const vm = require('vm');
 
     this.devices = {};
     this.scenes = {};
@@ -119,51 +119,47 @@ function automation(config) {
 
         return new Promise( (fulfill, reject) => {
 
-            let SB = require('./sandbox');
-            let sandbox = new SB(this, false, sourceIp);
-
-            if (js.id) {
-                if (!this.state[js.id]) {
-                    this.state[js.id] = {};
-                }
-                sandbox['state'] = this.state[js.id];
-            }
-
-            console.log('Running automation id => ' + js.id + ', "' + js.name + '"');
-
-            sandbox['_device'] = currentValue;
-
-            let context = new vm.createContext(sandbox);
-
-            let code = `
-            function __run(){ 
-                ${js.code}
-            };
-            
-            process.on('unhandledRejection', (reason, p) => {
-                //console.log('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
-            });
-
-            try{        
-                __run();
-            }
-            catch(err){
-                console.log(err);
-            }
-        `;
-
-            let script = new vm.Script(code, {
-                lineOffset: 1, // line number offset to be used for stack traces
-                columnOffset: 1, // column number offset to be used for stack traces
-                displayErrors: true,
-                timeout: 30000 // ms
-            });
-
             let err = null;
-
             let r = null;
 
             try{
+
+                let SB = require('./sandbox');
+                let sandbox = new SB(this, false, sourceIp);
+
+                if (js.id) {
+                    if (!this.state[js.id]) {
+                        this.state[js.id] = {};
+                    }
+                    sandbox['state'] = this.state[js.id];
+                }
+
+                console.log('Running automation id => ' + js.id + ', "' + js.name + '"');
+
+                sandbox['_device'] = currentValue;
+
+                let context = new vm.createContext(sandbox);
+
+                let code = `
+                function __run(){ 
+                    ${js.code}
+                };
+
+                try{        
+                    __run();
+                }
+                catch(err){
+                    console.log(err);
+                }                
+            `;
+
+                let script = new vm.Script(code, {
+                    lineOffset: 1, // line number offset to be used for stack traces
+                    columnOffset: 1, // column number offset to be used for stack traces
+                    displayErrors: true,
+                    timeout: 30000 // ms
+                });
+
                 r = script.runInContext(context);
             }
             catch (e) {

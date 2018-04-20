@@ -8,6 +8,13 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const redis = require('redis');
 
+const memwatch = require('memwatch-next');
+
+memwatch.on('leak', (info) => {
+    console.error('Memory leak detected:\n', info);
+    process.exit(1);
+});
+
 const uuid = require('uuid');
 
 const consul = require('consul')( {
