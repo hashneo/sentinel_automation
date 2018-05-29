@@ -164,7 +164,17 @@ function sandbox(automation, test, sourceIp){
                         console.log('sandbox findDevice => ' + e.message);
                     }
 
-                    fulfill(device);
+                    if ( device ) {
+                        automation.getDeviceStatus(device.id)
+                            .then((status) => {
+                                device.current = status;
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            })
+                    }else {
+                        fulfill(null);
+                    }
 
                 })
                 .catch( (err) =>{
