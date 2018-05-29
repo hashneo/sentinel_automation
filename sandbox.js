@@ -168,6 +168,7 @@ function sandbox(automation, test, sourceIp){
                         automation.getDeviceStatus(device.id)
                             .then((status) => {
                                 device.current = status;
+                                fulfill(device);
                             })
                             .catch((err) => {
                                 reject(err);

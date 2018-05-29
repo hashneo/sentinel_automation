@@ -59,6 +59,11 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
     global.config = config;
     global.config.save();
 
+    if (process.env.DEBUG) {
+        global.auth = {'endpoint': 'https://home.steventaylor.me'};
+        global.server = {'endpoint': 'https://home.steventaylor.me'};
+    }
+
     let pub = redis.createClient(
         {
             host: process.env.REDIS || global.config.redis || '127.0.0.1',
