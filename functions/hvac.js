@@ -23,11 +23,11 @@ module.exports = function (sandbox, id) {
 
     this.set = new function () {
         this.heat = function (temp) {
-            return sandbox.request('/hvac/' + id + '/heat/' + temp);
+            return sandbox.request('/hvac/' + id + '/heat/set/' + temp);
         };
 
         this.cool = function (temp) {
-            return sandbox.request('/hvac/' + id + '/cool/' + temp);
+            return sandbox.request('/hvac/' + id + '/cool/set/' + temp);
         };
     };
 };
