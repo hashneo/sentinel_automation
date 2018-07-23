@@ -15,6 +15,10 @@ function automation(config) {
 
     const vm = require('vm');
 
+    const Logger = require('sentinel-common').logger;
+
+    let log = new Logger();
+    
     this.devices = {};
     this.scenes = {};
     this.cron = {};
@@ -74,10 +78,10 @@ function automation(config) {
         // send mail with defined transport object
         transporter.sendMail(mailOptions, function(error, info){
             if(error){
-                console.error(error);
+                log.error(error);
                 return;
             }
-            console.log('Message sent: ' + info.response);
+            log.info('Message sent: ' + info.response);
         });
     };
 
@@ -134,7 +138,7 @@ function automation(config) {
                     sandbox['state'] = this.state[js.id];
                 }
 
-                console.log('Running automation id => ' + js.id + ', "' + js.name + '"');
+                log.info('Running automation id => ' + js.id + ', "' + js.name + '"');
 
                 sandbox['_device'] = currentValue;
 
@@ -149,7 +153,7 @@ function automation(config) {
                     __run();
                 }
                 catch(err){
-                    console.log(err);
+                    log.info(err);
                 }                
             `;
 
@@ -185,7 +189,7 @@ function automation(config) {
 
             let path = config.path() + subKey;
 
-            console.log('Saving automation id => ' + js.id + ', "' + js.name + '"');
+            log.info('Saving automation id => ' + js.id + ', "' + js.name + '"');
 
             global.consul.kv.del(path + js.id, function (err, data) {
                 if (err)
@@ -228,20 +232,20 @@ function automation(config) {
                         let js = JSON.parse(data.Value);
 
                         if ( !js ){
-                            console.log('key -> ' + keys[i] + ' was bad -> ' + data.Value);
+                            log.warn('key -> ' + keys[i] + ' was bad -> ' + data.Value);
                         }else{
                             switch (js.type){
                                 case 'event':
                                     if ( !that.devices[js.device] )
                                         that.devices[js.device] = {};
                                     that.devices[js.device][js.id] = js;
-                                    console.log('loaded event id => ' + js.id + ' for device => ' + js.device);
+                                    log.info('loaded event id => ' + js.id + ' for device => ' + js.device);
                                     break;
                                 case 'scene':
                                     if ( !that.scenes[js.area] )
                                         that.scenes[js.area] = {};
                                     that.scenes[js.area][js.id] = js;
-                                    console.log('loaded scene id => ' + js.id + ' for area => ' + js.area);
+                                    log.info('loaded scene id => ' + js.id + ' for area => ' + js.area);
                                     break;
                                 case 'schedule':
                                     break;

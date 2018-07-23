@@ -229,5 +229,7 @@ definitions:
         device:
           type: string
           format: uuid
+        trigger:
+          type: string
         code:
           type: string
