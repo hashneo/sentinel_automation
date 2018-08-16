@@ -30,7 +30,7 @@ module.exports.postAutomation = (req, res) => {
 
             let source =  req.cookies['connect.sid']; //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
-            return global.module.runInSandbox(js, status || {}, false, source);
+            return global.module.runInSandbox(js, status || {}, test, source);
         })
         .then( (result) => {
 
