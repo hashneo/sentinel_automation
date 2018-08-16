@@ -138,9 +138,10 @@ function automation(config) {
                     sandbox['state'] = this.state[js.id];
                 }
 
-                log.info('Running automation id => ' + js.id + ', "' + js.name + '"');
+                log.info( ( test ? 'Testing' : 'Running' ) + ' automation id => ' + js.id + ', "' + js.name + '"');
 
                 sandbox['_device'] = currentValue;
+                sandbox['_debug'] = test;
 
                 let context = new vm.createContext(sandbox);
 

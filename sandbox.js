@@ -6,6 +6,10 @@ const util = require('util');
 
 const redis = require('redis');
 
+const Logger = require('sentinel-common').logger;
+
+let log = new Logger();
+
 let pub = redis.createClient(
     {
         host: process.env.REDIS || global.config.redis || '127.0.0.1' ,
@@ -22,7 +26,7 @@ function sandbox(automation, test, sourceIp){
     this.console = new function () {
         this.log = function (...args) {
             let s = util.format(...args);
-            console.log( s );
+            log.info( s );
             if (sourceIp) {
                 let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
                 pub.publish('sentinel.automation.log', data);
@@ -130,7 +134,7 @@ function sandbox(automation, test, sourceIp){
                             }
                         }
                         catch (e) {
-                            console.log('sandbox findDeviceByType => ' + e.message);
+                            log.error('sandbox findDeviceByType => ' + e.message);
                         }
 
                     });
@@ -161,7 +165,7 @@ function sandbox(automation, test, sourceIp){
                         }
                     }
                     catch (e) {
-                        console.log('sandbox findDevice => ' + e.message);
+                        log.error('sandbox findDevice => ' + e.message);
                     }
 
                     if ( device ) {
@@ -199,7 +203,7 @@ function sandbox(automation, test, sourceIp){
             }
         }
         catch( e ){
-            console.log('sandbox findScene => ' + e.message);
+            log.error('sandbox findScene => ' + e.message);
         }
 
         return scene;
@@ -222,7 +226,7 @@ function sandbox(automation, test, sourceIp){
                     });
             }
             catch (err) {
-                console.log('sandbox request => ' + err.message);
+                log.error('sandbox request => ' + err.message);
                 reject(err);
             }
         });
