@@ -102,7 +102,7 @@ function sandbox(automation, test, sourceIp){
             // If there is no code associated with the
             // device type, return
             if ( parts.length == 0 ){
-                console.log('sandbox getFunctions => ' + device.type + ' does not have a function code file.');
+                log.info('sandbox getFunctions => ' + device.type + ' does not have a function code file.');
                 return [];
             }
 
@@ -125,7 +125,7 @@ function sandbox(automation, test, sourceIp){
                         try {
                             let functions = getFunctions(device);
 
-                            if ( functions ) {
+                            if ( functions && functions.length ) {
                                 let m = new functions(that, device.id);
 
                                 for (let k in m) {
