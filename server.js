@@ -3,6 +3,10 @@
 const auth = require('sentinel-common').auth;
 const request = require('request');
 
+const Logger = require('sentinel-common').logger;
+
+let log = new Logger();
+
 function server() {
 
     const that = this;
@@ -25,7 +29,7 @@ function server() {
                         method: 'GET'
                     };
 
-                    console.log('calling => ' + options.uri );
+                    log.info('calling => ' + options.uri );
 
                     request(options, (err, resp, body) => {
                         if (err) {

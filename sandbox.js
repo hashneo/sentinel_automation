@@ -125,11 +125,13 @@ function sandbox(automation, test, sourceIp){
                         try {
                             let functions = getFunctions(device);
 
-                            let m = new functions(that, device.id);
+                            if ( functions ) {
+                                let m = new functions(that, device.id);
 
-                            for (let k in m) {
-                                if (m.hasOwnProperty(k)) {
-                                    device[k] = m[k];
+                                for (let k in m) {
+                                    if (m.hasOwnProperty(k)) {
+                                        device[k] = m[k];
+                                    }
                                 }
                             }
                         }
