@@ -1,11 +1,11 @@
 module.exports = function (sandbox, id) {
     this.mode = new function () {
-        this.heat = function () {
-            return sandbox.request('/hvac/' + id + '/heat');
+        this.heating = function () {
+            return sandbox.request('/hvac/' + id + '/heating');
         };
 
-        this.cool = function () {
-            return sandbox.request('/hvac/' + id + '/cool');
+        this.cooling = function () {
+            return sandbox.request('/hvac/' + id + '/cooling');
         };
 
         this.auto = function () {

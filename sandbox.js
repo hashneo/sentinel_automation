@@ -231,9 +231,9 @@ function sandbox(automation, test, sourceIp){
         return new Promise((fulfill, reject) => {
 
             try {
-                if (test) {
-                    fulfill();
-                }
+                //if (test) {
+                //    fulfill();
+                //}
                 automation.call(url)
                     .then((data) => {
                         fulfill(data);
