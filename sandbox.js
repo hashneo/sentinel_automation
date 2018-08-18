@@ -135,18 +135,34 @@ function sandbox(automation, test, sourceIp){
 
                 .then((devices) => {
 
+                    let p = [];
+
                     devices.forEach((device) => {
 
                         try {
                             mixInFunctions(device, 'device');
                             mixInFunctions(device, device.type);
+
+                            p.push( device.status() );
                         }
                         catch (e) {
                             log.error('sandbox findDeviceByType => ' + e.message);
                         }
 
                     });
-                    fulfill(devices);
+
+
+                    Promise.all(p)
+                        .then( results => {
+                            for (let i = 0; i < results.length; i++) {
+                                devices[i]['current'] = results[i][0];
+                            }
+                            fulfill(devices);
+                        })
+                        .catch( (err) =>{
+                            reject(err);
+                        })
+
                 })
                 .catch( (err) =>{
                     reject(err);
