@@ -262,6 +262,13 @@ function automation(config) {
     };
 
     this.loadAutomation(config.path());
+
+    /*
+    let SB = require('./sandbox');
+    let sandbox = new SB(this, false, '');
+
+    sandbox.findDeviceByType('switch');
+    */
 }
 
 exports = module.exports = automation;

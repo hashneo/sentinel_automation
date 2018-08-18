@@ -88,9 +88,8 @@ function sandbox(automation, test, sourceIp){
         require('deasync').loopWhile(function(){return !done;});
     };
 
-    function getFunctions(device){
 
-        let deviceType = device.type;
+    function getFunctions(deviceType){
 
         let codeFile = __dirname + '/functions/' + deviceType + '.js';
 
@@ -102,7 +101,7 @@ function sandbox(automation, test, sourceIp){
             // If there is no code associated with the
             // device type, return
             if ( parts.length == 0 ){
-                log.info('sandbox getFunctions => ' + device.type + ' does not have a function code file.');
+                log.info('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
                 return [];
             }
 
@@ -110,6 +109,22 @@ function sandbox(automation, test, sourceIp){
         }
 
         return require(codeFile);
+    }
+
+    function mixInFunctions(device, type){
+
+        let functions = getFunctions(type);
+
+        if ( functions && functions.length ) {
+            let m = new functions(that, device.id);
+
+            for (let k in m) {
+                if (m.hasOwnProperty(k)) {
+                    device[k] = m[k];
+                }
+            }
+        }
+
     }
 
     this.findDeviceByType = (type) => {
@@ -123,17 +138,8 @@ function sandbox(automation, test, sourceIp){
                     devices.forEach((device) => {
 
                         try {
-                            let functions = getFunctions(device);
-
-                            if ( functions && functions.length ) {
-                                let m = new functions(that, device.id);
-
-                                for (let k in m) {
-                                    if (m.hasOwnProperty(k)) {
-                                        device[k] = m[k];
-                                    }
-                                }
-                            }
+                            mixInFunctions(device, 'device');
+                            mixInFunctions(device, device.type);
                         }
                         catch (e) {
                             log.error('sandbox findDeviceByType => ' + e.message);
@@ -156,15 +162,8 @@ function sandbox(automation, test, sourceIp){
                 .then ( (device) => {
 
                     try {
-                        let functions = getFunctions(device);
-
-                        let m = new functions(that, device.id);
-
-                        for (let k in m) {
-                            if (m.hasOwnProperty(k)) {
-                                device[k] = m[k];
-                            }
-                        }
+                        mixInFunctions(device, 'device');
+                        mixInFunctions(device, device.type);
                     }
                     catch (e) {
                         log.error('sandbox findDevice => ' + e.message);
@@ -232,7 +231,8 @@ function sandbox(automation, test, sourceIp){
                 reject(err);
             }
         });
-    }
+    };
+
 }
 
 module.exports = sandbox;
