@@ -12,6 +12,10 @@ module.exports = function (sandbox, id) {
             return sandbox.request('/hvac/' + id + '/auto');
         };
 
+        this.off = function () {
+            return sandbox.request('/hvac/' + id + '/off');
+        };
+
         this.home = function () {
             return sandbox.request('/hvac/' + id + '/home');
         };
