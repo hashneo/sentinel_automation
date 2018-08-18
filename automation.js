@@ -170,10 +170,10 @@ function automation(config) {
             catch (e) {
                 err = e;
             }
-
+/*
             if (test)
                 delete this.state[js.id];
-
+*/
             if (err)
                 return reject(err);
 
