@@ -67,14 +67,6 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
         global.server = {'endpoint': 'https://home.steventaylor.me'};
     }
 
-    let pub = redis.createClient(
-        {
-            host: process.env.REDIS || global.config.redis || '127.0.0.1',
-            socket_keepalive: true,
-            retry_unfulfilled_commands: true
-        }
-    );
-
     const securityHandlers = require('sentinel-common').securityHandlers;
 
     let appConfig = {
@@ -115,6 +107,14 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
             };
 
             process.env.SERVICE_ID = serviceId;
+
+            let pub = redis.createClient(
+                {
+                    host: process.env.REDIS || global.config.redis || '127.0.0.1',
+                    socket_keepalive: true,
+                    retry_unfulfilled_commands: true
+                }
+            );
 
             pub.on('ready', function(e){
 
