@@ -15,10 +15,8 @@ function automation(config) {
 
     const vm = require('vm');
 
-    const Logger = require('sentinel-common').logger;
+    const logger = require('sentinel-common').logger;
 
-    let log = new Logger();
-    
     this.devices = {};
     this.scenes = {};
     this.cron = {};
@@ -78,10 +76,10 @@ function automation(config) {
         // send mail with defined transport object
         transporter.sendMail(mailOptions, function(error, info){
             if(error){
-                log.error(error);
+                logger.error(error);
                 return;
             }
-            log.info('Message sent: ' + info.response);
+            logger.info('Message sent: ' + info.response);
         });
     };
 
@@ -138,7 +136,7 @@ function automation(config) {
                     sandbox['state'] = this.state[js.id];
                 }
 
-                log.info( ( test ? 'Testing' : 'Running' ) + ' automation id => ' + js.id + ', "' + js.name + '"');
+                logger.info( ( test ? 'Testing' : 'Running' ) + ' automation id => ' + js.id + ', "' + js.name + '"');
 
                 sandbox['_device'] = currentValue;
                 sandbox['_debug'] = test;
@@ -154,7 +152,7 @@ function automation(config) {
                     __run();
                 }
                 catch(err){
-                    log.info(err);
+                    logger.info(err);
                 }                
             `;
 
@@ -190,7 +188,7 @@ function automation(config) {
 
             let path = config.path() + subKey;
 
-            log.info('Saving automation id => ' + js.id + ', "' + js.name + '"');
+            logger.info('Saving automation id => ' + js.id + ', "' + js.name + '"');
 
             global.consul.kv.del(path + js.id, function (err, data) {
                 if (err)
@@ -233,20 +231,20 @@ function automation(config) {
                         let js = JSON.parse(data.Value);
 
                         if ( !js ){
-                            log.warn('key -> ' + keys[i] + ' was bad -> ' + data.Value);
+                            logger.warn('key -> ' + keys[i] + ' was bad -> ' + data.Value);
                         }else{
                             switch (js.type){
                                 case 'event':
                                     if ( !that.devices[js.device] )
                                         that.devices[js.device] = {};
                                     that.devices[js.device][js.id] = js;
-                                    log.info('loaded event id => ' + js.id + ' for device => ' + js.device);
+                                    logger.info('loaded event id => ' + js.id + ' for device => ' + js.device);
                                     break;
                                 case 'scene':
                                     if ( !that.scenes[js.area] )
                                         that.scenes[js.area] = {};
                                     that.scenes[js.area][js.id] = js;
-                                    log.info('loaded scene id => ' + js.id + ' for area => ' + js.area);
+                                    logger.info('loaded scene id => ' + js.id + ' for area => ' + js.area);
                                     break;
                                 case 'schedule':
                                     break;

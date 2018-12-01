@@ -6,9 +6,7 @@ const util = require('util');
 
 const redis = require('redis');
 
-const Logger = require('sentinel-common').logger;
-
-let log = new Logger();
+const logger = require('sentinel-common').logger;
 
 let pub = redis.createClient(
     {
@@ -26,7 +24,7 @@ function sandbox(automation, test, sourceIp){
     this.console = new function () {
         this.log = function (...args) {
             let s = util.format(...args);
-            log.info( s );
+            logger.info( s );
             if (sourceIp) {
                 let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
                 pub.publish('sentinel.automation.log', data);
@@ -101,7 +99,7 @@ function sandbox(automation, test, sourceIp){
             // If there is no code associated with the
             // device type, return
             if ( parts.length == 0 ){
-                log.info('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
+                logger.info('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
                 return [];
             }
 
@@ -146,7 +144,7 @@ function sandbox(automation, test, sourceIp){
                             p.push( device.status() );
                         }
                         catch (e) {
-                            log.error('sandbox findDeviceByType => ' + e.message);
+                            logger.error('sandbox findDeviceByType => ' + e.message);
                         }
 
                     });
@@ -182,7 +180,7 @@ function sandbox(automation, test, sourceIp){
                         mixInFunctions(device, device.type);
                     }
                     catch (e) {
-                        log.error('sandbox findDevice => ' + e.message);
+                        logger.error('sandbox findDevice => ' + e.message);
                     }
 
                     if ( device ) {
@@ -220,7 +218,7 @@ function sandbox(automation, test, sourceIp){
             }
         }
         catch( e ){
-            log.error('sandbox findScene => ' + e.message);
+            logger.error('sandbox findScene => ' + e.message);
         }
 
         return scene;
@@ -243,7 +241,7 @@ function sandbox(automation, test, sourceIp){
                     });
             }
             catch (err) {
-                log.error('sandbox request => ' + err.message);
+                logger.error('sandbox request => ' + err.message);
                 reject(err);
             }
         });
