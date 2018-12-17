@@ -24,7 +24,7 @@ function sandbox(automation, test, sourceIp){
     this.console = new function () {
         this.log = function (...args) {
             let s = util.format(...args);
-            logger.info( s );
+            console.log( s );
             if (sourceIp) {
                 let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
                 pub.publish('sentinel.automation.log', data);
@@ -37,9 +37,7 @@ function sandbox(automation, test, sourceIp){
 
             if ( e === 'unhandledRejection') {
                 process.on(e,  (reason, p) =>{
-
-                    that.console.log('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
-
+                    logger.error('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
                     f( reason, p );
                 });
             }
