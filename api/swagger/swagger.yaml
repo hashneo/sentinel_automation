@@ -226,6 +226,8 @@ definitions:
             scene,
             schedule
           ]
+        area:
+          type: string
         name:
           type: string
         device:
