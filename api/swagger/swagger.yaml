@@ -222,7 +222,9 @@ definitions:
         type:
           type: string
           enum: [
-            event
+            event,
+            scene,
+            schedule
           ]
         name:
           type: string
