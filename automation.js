@@ -209,7 +209,7 @@ function automation(config) {
         });
     };
 
-    this.loadAutomation = (path) => {
+    function load(path){
 
         return new Promise( (fulfill, reject) => {
 
@@ -237,14 +237,20 @@ function automation(config) {
                                 case 'event':
                                     if ( !that.devices[js.device] )
                                         that.devices[js.device] = {};
-                                    that.devices[js.device][js.id] = js;
-                                    logger.info('loaded event id => ' + js.id + ' for device => ' + js.device);
+
+                                    if ( !that.devices[js.device][js.id] ) {
+                                        that.devices[js.device][js.id] = js;
+                                        logger.info('loaded event id => ' + js.id + ' for device => ' + js.device);
+                                    }
                                     break;
                                 case 'scene':
                                     if ( !that.scenes[js.area] )
                                         that.scenes[js.area] = {};
-                                    that.scenes[js.area][js.id] = js;
-                                    logger.info('loaded scene id => ' + js.id + ' for area => ' + js.area);
+
+                                    if ( !that.scenes[js.area][js.id] ) {
+                                        that.scenes[js.area][js.id] = js;
+                                        logger.info('loaded scene id => ' + js.id + ' for area => ' + js.area);
+                                    }
                                     break;
                                 case 'schedule':
                                     break;
@@ -257,9 +263,15 @@ function automation(config) {
             });
 
         });
+    }
+
+    this.loadAutomation = () => {
+        return load(config.path());
     };
 
-    this.loadAutomation(config.path());
+    this.loadAutomation();
+
+    setInterval( this.loadAutomation, 10000 );
 
     if (process.env.DEBUG) {
         let SB = require('./sandbox');

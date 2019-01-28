@@ -24,7 +24,7 @@ function sandbox(automation, test, sourceIp){
     this.console = new function () {
         this.log = function (...args) {
             let s = util.format(...args);
-            console.log( s );
+            logger.info(s);
             if (sourceIp) {
                 let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
                 pub.publish('sentinel.automation.log', data);

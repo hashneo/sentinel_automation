@@ -1,10 +1,21 @@
 'use strict';
 
+const uuid = require('uuid');
+
 module.exports.getScenes = (req, res) => {
     let result = [];
     for (let area in global.module.scenes) {
         for (let name in global.module.scenes[area]) {
-            result.push({'id': global.module.scenes[area][name].id, 'area': area, 'name': global.module.scenes[area][name].name});
+            let scene = global.module.scenes[area][name];
+
+            let add = true;
+
+            if ( scene.owner && req.jwt ){
+                add = (scene.owner === req.jwt.acc_id)
+            }
+
+            if (add)
+                result.push({'id': scene.id, 'area': area, 'name': scene.name});
         }
     }
     res.status(200).json( {'result': 'ok', 'data': result});
@@ -64,4 +75,43 @@ module.exports.runSceneById = (req, res) => {
     } catch (e) {
         res.status(500).json( {"error": e});
     }
+};
+
+module.exports.postScene = (req, res) => {
+
+    let js = req.swagger.params.data.value;
+    let test = req.swagger.params.test.value;
+
+    if (!js.id)
+        js.id = uuid.v4();
+
+    let source =  req.cookies['connect.sid']; //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    global.module.runInSandbox(js, {}, test, source)
+        .then( (result) => {
+
+            return new Promise((fulfill, reject) => {
+
+                if (test) {
+                    return fulfill(result)
+                }
+                global.module.saveAutomation(js)
+                    .then(() => {
+                        fulfill(result);
+                    })
+                    .catch((err) => {
+                        reject(err);
+                    })
+            })
+        })
+        .then( (result) => {
+            res.status(200).json( {'id': js.id, 'result': result} );
+        })
+        .catch( (err) => {
+            res.status(err.code >= 400 && err.code <= 451 ? err.code : 500).json({
+                code: err.code || 0,
+                message: err.message
+            });
+        });
+
 };

@@ -139,6 +139,28 @@ paths:
               type: object
           default:
             $ref: '#/responses/Error'
+      post:
+        operationId: postScene
+        security:
+        - Oauth:
+          - user
+        parameters:
+        - in: query
+          required: false
+          name: test
+          type: boolean
+        - in: body
+          name: data
+          required: true
+          schema:
+            $ref: '#/definitions/Automation'
+        responses:
+          200:
+            description: return
+            schema:
+              type: object
+          default:
+            $ref: '#/responses/Error'
 
   /automation/scenes/{id}:
       x-swagger-router-controller: scenes
@@ -217,6 +239,9 @@ definitions:
     additionalProperties: false
     properties:
         id:
+          type: string
+          format: uuid
+        owner:
           type: string
           format: uuid
         type:

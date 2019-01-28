@@ -72,7 +72,9 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
     let appConfig = {
         appRoot: __dirname, // required config
         swaggerSecurityHandlers: {
-            Oauth: securityHandlers.Oauth
+            Oauth:(req, authOrSecDef, scopesOrApiKey, cb) => {
+                securityHandlers.Oauth(req, authOrSecDef, scopesOrApiKey, cb);
+            }
         }
     };
 
