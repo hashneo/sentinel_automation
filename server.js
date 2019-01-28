@@ -42,6 +42,7 @@ function server() {
                             body = JSON.parse(body);
 
                             if ( body.result !== 'ok' ) {
+                                logger.error('error calling => ' + options.uri );
                                 return reject(new Error('result was not ok'));
                             }
 
