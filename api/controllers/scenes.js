@@ -15,8 +15,12 @@ module.exports.getScenes = (req, res) => {
             }
 
             if (add) {
-                delete scene.code;
-                result.push(scene);
+                result.push({
+                    id: scene.id,
+                    area: area,
+                    name: scene.name,
+                    type: scene.type
+                });
             }
         }
     }
