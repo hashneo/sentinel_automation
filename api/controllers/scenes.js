@@ -14,8 +14,10 @@ module.exports.getScenes = (req, res) => {
                 add = (scene.owner === req.jwt.acc_id)
             }
 
-            if (add)
-                result.push({'id': scene.id, 'area': area, 'name': scene.name});
+            if (add) {
+                delete scene.code;
+                result.push(scene);
+            }
         }
     }
     res.status(200).json( {'result': 'ok', 'data': result});
@@ -31,9 +33,7 @@ module.exports.getSceneById = (req, res) => {
         for (let area in global.module.scenes) {
             for (let name in global.module.scenes[area]) {
                 if (global.module.scenes[area][name].id === id) {
-                    let file = path.join(__dirname, 'automation', 'scenes', id + '.json');
-                    data = fs.readFileSync(file, {'encoding': 'utf-8'});
-                    data = JSON.parse(data);
+                    data = global.module.scenes[area][name];
                     break;
                 }
             }
