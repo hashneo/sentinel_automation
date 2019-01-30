@@ -198,9 +198,24 @@ function automation(config) {
                     if (err)
                         return reject(err);
 
-                    if ( !that.devices[js.device] )
-                        that.devices[js.device] = {};
-                    that.devices[js.device][js.id] = js;
+                    switch (js.type) {
+                        case 'event':
+                            if (!that.devices[js.device])
+                                that.devices[js.device] = {};
+                            that.devices[js.device][js.id] = js;
+
+                            logger.info('saved event id => ' + js.id + ' for device => ' + js.device);
+
+                            break;
+                        case 'scene':
+                            if (!that.scenes[js.area])
+                                that.scenes[js.area] = {};
+
+                            that.scenes[js.area][js.id] = js;
+                            logger.info('saved scene id => ' + js.id + ' for area => ' + js.area);
+
+                            break;
+                    }
 
                     fulfill();
                 });
