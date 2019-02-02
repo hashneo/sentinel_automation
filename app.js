@@ -140,7 +140,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 });
 
 process.on('unhandledRejection', (reason, p) => {
-    if ( reason.stack.includes('(evalmachine.') ){
+    if ( reason.stack && reason.stack.includes('(evalmachine.') ){
         logger.error(reason);
     } else {
         console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
