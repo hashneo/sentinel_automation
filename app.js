@@ -9,6 +9,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const redis = require('redis');
+const logger = require('sentinel-common').logger;
 
 /*
 const memwatch = require('memwatch-next');
@@ -140,7 +141,7 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 
 process.on('unhandledRejection', (reason, p) => {
     if ( reason.stack.includes('(evalmachine.') ){
-
+        logger.error(reason);
     } else {
         console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
         //process.exit(1);

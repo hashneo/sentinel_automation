@@ -28,9 +28,7 @@ module.exports.postAutomation = (req, res) => {
     global.module.getDeviceStatus(js.device)
         .then( (status) =>{
 
-            let source =  req.cookies['connect.sid']; //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-            return global.module.runInSandbox(js, status || {}, test, source);
+            return global.module.runInSandbox(js, status || {}, test);
         })
         .then( (result) => {
 

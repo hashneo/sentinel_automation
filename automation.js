@@ -17,9 +17,11 @@ function automation(config) {
 
     const logger = require('sentinel-common').logger;
 
+    var streams = require('memory-streams');
+
     this.devices = {};
     this.scenes = {};
-    this.cron = {};
+    this.cron = require('node-cron');
 
     this.state = {};
 
@@ -117,17 +119,20 @@ function automation(config) {
         Promise.all(p);
     };
 
-    this.runInSandbox = (js, currentValue, test, sourceIp) => {
+    this.runInSandbox = (js, currentValue, test) => {
 
         return new Promise( (fulfill, reject) => {
-
-            let err = null;
-            let r = null;
 
             try{
 
                 let SB = require('./sandbox');
-                let sandbox = new SB(this, false, sourceIp);
+
+                let logStream;
+
+                if (test)
+                    logStream = new streams.WritableStream();
+
+                let sandbox = new SB(this, logStream);
 
                 if (js.id) {
                     if (!this.state[js.id]) {
@@ -141,41 +146,59 @@ function automation(config) {
                 sandbox['_device'] = currentValue;
                 sandbox['_debug'] = test;
 
-                let context = new vm.createContext(sandbox);
-
-                let code = `
-                function __run(){ 
-                    ${js.code}
+                sandbox['complete'] = function(result){
+                    if (!sandbox._complete) {
+                        sandbox._complete = true;
+                        fulfill({
+                            result: result,
+                            log: logStream.toString()
+                        });
+                    }
+                };
+                sandbox['failed'] = function(err){
+                    if (!sandbox._complete) {
+                        sandbox._complete = true;
+                        reject(err);
+                    }
                 };
 
-                try{        
-                    __run();
-                }
-                catch(err){
-                    logger.info(err);
-                }                
-            `;
+                let context = new vm.createContext(sandbox);
 
-                let script = new vm.Script(code, {
+                sandbox['_complete'] = false;
+
+                let code = `
+                function __run(){
+                    try{      
+                    ${js.code}
+                    } 
+                    catch(err){
+                        failed(err);
+                    }
+                };
+
+                __run();
+                
+                setTimeout(function() {
+                    failed('timeout');
+                }, 60000);
+                `;
+
+                let options = {
                     lineOffset: 1, // line number offset to be used for stack traces
                     columnOffset: 1, // column number offset to be used for stack traces
                     displayErrors: true,
-                    timeout: 30000 // ms
-                });
+                    timeout: 5000 // ms
+                };
 
-                r = script.runInContext(context);
+                vm.runInContext(code, context, options);
             }
-            catch (e) {
-                err = e;
+            catch (err) {
+                return reject(err);
             }
 /*
             if (test)
                 delete this.state[js.id];
 */
-            if (err)
-                return reject(err);
-
-            fulfill(r);
         });
     };
 
@@ -243,7 +266,14 @@ function automation(config) {
                         if (err)
                             reject(err);
 
-                        let js = JSON.parse(data.Value);
+                        let js;
+
+                        try {
+                            js = JSON.parse(data.Value);
+                        }
+                        catch(err) {
+                            logger.err(err);
+                        }
 
                         if ( !js ){
                             logger.warn('key -> ' + keys[i] + ' was bad -> ' + data.Value);
@@ -290,9 +320,34 @@ function automation(config) {
 
     if (process.env.DEBUG) {
         let SB = require('./sandbox');
-        let sandbox = new SB(this, false, '');
+        let sandbox = new SB(this);
 
         sandbox.findDeviceByType('switch');
+
+        let testCode = `
+        var promise1 = new Promise( (resolve, reject) => {
+            setTimeout(function() {
+                resolve('foo');
+            }, 1000);
+        });
+        
+        promise1
+        .then( (x) => {
+            console.log('completed with result => ' + x );
+            complete(x);
+        })
+        .catch( (err) => {
+            failed(err);
+        })
+        `;
+
+        this.runInSandbox({ code: testCode}, {}, true, null )
+            .then( (result) => {
+            })
+            .catch( (err) => {
+                logger.error(err);
+            })
+
     }
 }
 

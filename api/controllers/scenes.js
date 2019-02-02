@@ -89,9 +89,7 @@ module.exports.postScene = (req, res) => {
     if (!js.id)
         js.id = uuid.v4();
 
-    let source =  req.cookies['connect.sid']; //req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    global.module.runInSandbox(js, {}, test, source)
+    global.module.runInSandbox(js, {}, test)
         .then( (result) => {
 
             return new Promise((fulfill, reject) => {

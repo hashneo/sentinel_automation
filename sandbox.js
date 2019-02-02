@@ -8,15 +8,7 @@ const redis = require('redis');
 
 const logger = require('sentinel-common').logger;
 
-let pub = redis.createClient(
-    {
-        host: process.env.REDIS || global.config.redis || '127.0.0.1' ,
-        socket_keepalive: true,
-        retry_unfulfilled_commands: true
-    }
-);
-
-function sandbox(automation, test, sourceIp){
+function sandbox(automation, logStream){
     let that = this;
 
     this.require = require;
@@ -24,19 +16,15 @@ function sandbox(automation, test, sourceIp){
     this.console = new function () {
         this.log = function (...args) {
             let s = util.format(...args);
-            logger.info(s);
-            if (sourceIp) {
-                let data = JSON.stringify({module: 'automation', target: sourceIp, log: s});
-                pub.publish('sentinel.automation.log', data);
-            }
+            if (logStream)
+                logStream.write(`${s}\n`);
         }
     };
 
     this.process = new function() {
         this.on = function( e, f ){
-
             if ( e === 'unhandledRejection') {
-                process.on(e,  (reason, p) =>{
+                process.on(e, (reason, p) =>{
                     logger.error('Unhandled Rejection IN AUTOMATION at: Promise', p, 'reason:', reason);
                     f( reason, p );
                 });
@@ -96,7 +84,7 @@ function sandbox(automation, test, sourceIp){
 
             // If there is no code associated with the
             // device type, return
-            if ( parts.length == 0 ){
+            if ( parts.length === 0 ){
                 logger.info('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
                 return [];
             }
@@ -227,9 +215,6 @@ function sandbox(automation, test, sourceIp){
         return new Promise((fulfill, reject) => {
 
             try {
-                //if (test) {
-                //    fulfill();
-                //}
                 automation.call(url)
                     .then((data) => {
                         fulfill(data);
