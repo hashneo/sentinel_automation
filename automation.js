@@ -112,11 +112,15 @@ function automation(config) {
     };
 
     this.run = ( events, currentValue ) => {
-        let p = [];
         for( let k in events ){
-            p.push( that.runInSandbox(events[k], currentValue, false) );
+            that.runInSandbox(events[k], currentValue, false)
+                .then( (result) => {
+                    // All good
+                })
+                .catch( (err) => {
+                    logger.error(err);
+                })
         }
-        Promise.all(p);
     };
 
     this.runInSandbox = (js, currentValue, test) => {
