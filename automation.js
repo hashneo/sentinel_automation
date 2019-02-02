@@ -118,7 +118,11 @@ function automation(config) {
                     // All good
                 })
                 .catch( (err) => {
-                    logger.error(err);
+                    if ( err === 'timeout' ){
+                        logger.error( `timeout - event id '${events[k].id}' (${events[k].name}) did not call complete() or failed(). Please fix!`);
+                    } else {
+                        logger.error(err);
+                    }
                 })
         }
     };
@@ -356,3 +360,7 @@ function automation(config) {
 }
 
 exports = module.exports = automation;
+
+function foo() {
+
+}
