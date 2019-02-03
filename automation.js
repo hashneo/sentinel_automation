@@ -360,7 +360,3 @@ function automation(config) {
 }
 
 exports = module.exports = automation;
-
-function foo() {
-
-}

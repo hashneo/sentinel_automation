@@ -85,7 +85,7 @@ function sandbox(automation, logStream){
             // If there is no code associated with the
             // device type, return
             if ( parts.length === 0 ){
-                logger.info('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
+                logger.debug('sandbox getFunctions => ' + deviceType + ' does not have a function code file.');
                 return [];
             }
 
