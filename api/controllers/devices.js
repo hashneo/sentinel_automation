@@ -5,7 +5,7 @@ module.exports.getByDeviceId = (req, res) => {
 
     try {
         if ( global.module.devices[id] === undefined ){
-            return res.json(200,  {'result': 'ok', 'data': []});
+            return res.status(200).json({result: 'ok', data: []});
         }
 
         let automation = [];
@@ -13,9 +13,9 @@ module.exports.getByDeviceId = (req, res) => {
             automation.push(global.module.devices[id][k]);
         }
 
-        res.json(200,  {'result': 'ok', 'data': automation });
+        res.status(200).json({result: 'ok', data: automation });
     } catch (e) {
-        res.json(500, {"error": e.message});
+        res.status(500).json({error: e.message});
     }
 };
 
@@ -34,15 +34,15 @@ module.exports.postByDeviceId = (req, res) => {
 
                     devices[device.id] = js;
 
-                    res.json(200, {'result': result});
+                    res.status(200).json( {result: result});
 
                 }
                 catch (e) {
-                    res.json(500, {"error": e.message});
+                    res.status(500).json({error: e.message});
                 }
             });
         });
     } catch (e) {
-        res.json(500, {"error": e.message});
+        res.status(500).json({error: e.message});
     }
 };

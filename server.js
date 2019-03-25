@@ -34,7 +34,7 @@ function server() {
                             return reject(err);
                         }
 
-                        if (resp.statusCode != 200) {
+                        if (resp.statusCode !== 200) {
                             return reject(new Error(resp.statusCode));
                         }
 
@@ -99,7 +99,7 @@ function server() {
             loadSystem()
                 .then((system) => {
                     system.devices.forEach( (device) =>{
-                        if ( device.name === name || device.id == name )
+                        if ( device.name === name || device.id === name )
                             return fulfill( device );
                     });
 
