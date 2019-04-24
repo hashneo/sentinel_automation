@@ -26,9 +26,9 @@ module.exports.postAutomation = (req, res) => {
         js.id = uuid.v4();
 
     global.module.getDeviceStatus(js.device)
-        /*.then( (status) =>{
+        .then( (status) =>{
             return global.module.runInSandbox(js, status || {}, test);
-        })*/
+        })
         .then( (result) => {
 
             return new Promise((fulfill, reject) => {
