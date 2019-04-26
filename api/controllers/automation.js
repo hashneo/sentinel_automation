@@ -27,7 +27,10 @@ module.exports.postAutomation = (req, res) => {
 
     global.module.getDeviceStatus(js.device)
         .then( (status) =>{
-            return global.module.runInSandbox(js, status || {}, test);
+            if (!test)
+                return Promise.resolve({});
+            else
+                return global.module.runInSandbox(js, status || {}, test);
         })
         .then( (result) => {
 
