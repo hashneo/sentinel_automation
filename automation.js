@@ -4,6 +4,12 @@ function automation(config) {
         return new automation(config)
     }
 
+    const Promise = require('bluebird');
+
+    Promise.config({
+        longStackTraces: true
+    });
+
     const uuid = require('uuid');
     const mailer = require('nodemailer');
 
@@ -39,49 +45,60 @@ function automation(config) {
 
     this.sms = (to, text) => {
 
-        if ( global.config.sms === undefined ){
-            throw new Error('Outbound sms is not configured');
-        }
+        return new Promise( (fulfill, reject) => {
+            if (global.config.sms === undefined) {
+                return reject('Outbound sms is not configured');
+            }
 
-        // Twilio Credentials
-        let accountSid = global.config.sms.account.sid;
-        let authToken = global.config.sms.account.token;
+            // Twilio Credentials
+            let accountSid = global.config.sms.account.sid;
+            let authToken = global.config.sms.account.token;
 
-        //require the Twilio module and create a REST client
-        let client = require('twilio')(accountSid, authToken);
+            //require the Twilio module and create a REST client
+            let client = require('twilio')(accountSid, authToken);
 
-        client.messages.create({
-            to: to,
-            from: global.config.sms.number,
-            body: text,
-        }, function (err, message) {
-        });
+            client.messages.create({
+                to: to,
+                from: global.config.sms.number,
+                body: text,
+            }, function (err, message) {
+                if (err){
+                    logger.error(err);
+                    return reject(err);
+                }
+                logger.info('SMS sent: ' + message);
+                fulfill();
+            });
+        })
     };
 
     this.email = (to, subject, text, html) => {
 
-        if ( global.config.email === undefined ){
-            throw new Error('Outbound email is not configured');
-        }
-
-        let mailOptions = {
-            from: global.config.email.sender,
-            to: to,
-            subject: subject,
-            text : text,
-        };
-
-        let transportOptions = global.config.email.options;
-
-        let transporter = mailer.createTransport(transportOptions);
-
-        // send mail with defined transport object
-        transporter.sendMail(mailOptions, function(error, info){
-            if(error){
-                logger.error(error);
-                return;
+        return new Promise( (fulfill, reject) => {
+            if (global.config.email === undefined) {
+                return reject('Outbound email is not configured');
             }
-            logger.info('Message sent: ' + info.response);
+
+            let mailOptions = {
+                from: global.config.email.sender,
+                to: to,
+                subject: subject,
+                text: text,
+            };
+
+            let transportOptions = global.config.email.options;
+
+            let transporter = mailer.createTransport(transportOptions);
+
+            // send mail with defined transport object
+            transporter.sendMail(mailOptions, function (err, info) {
+                if (err) {
+                    logger.error(err);
+                    return reject(err);
+                }
+                logger.info('Message sent: ' + info.response);
+                fulfill();
+            });
         });
     };
 
@@ -327,6 +344,16 @@ function automation(config) {
     setInterval( this.loadAutomation, 10000 );
 
     if (process.env.DEBUG) {
+
+        /*
+        function foo(){
+            return new Promise( ( f, r) => {
+                r('blah');
+            })
+        }
+
+        foo();
+        */
         let SB = require('./sandbox');
         let sandbox = new SB(this);
 

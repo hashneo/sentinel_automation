@@ -13,6 +13,7 @@ const cookieParser = require('cookie-parser');
 const redis = require('redis');
 const logger = require('sentinel-common').logger;
 
+
 /*
 const memwatch = require('memwatch-next');
 
@@ -142,10 +143,15 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
 });
 
 process.on('unhandledRejection', (reason, p) => {
-    if ( reason.stack && reason.stack.includes('(evalmachine.') ){
+    if ( reason && reason.stack && reason.stack.includes('(evalmachine.') ){
         logger.error(reason);
     } else {
-        console.log('Unhandled Rejection at: Promise', p, 'reason:', reason);
+
+        logger.error('Unhandled Rejection at: Promise', p, 'reason:', reason);
+
+        if ( p._trace && p._trace.stack )
+            logger.error( p._trace.stack );
+
         //process.exit(1);
     }
 });
