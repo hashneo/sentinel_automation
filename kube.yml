@@ -10,7 +10,7 @@ spec:
     protocol: TCP
     targetPort: 5000
   selector:
-    app: app
+    app: automation
     context: sentinel
     version: v1
 ---
@@ -22,11 +22,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app
+      app: automation
   template:
     metadata:
       labels:
-        app: app
+        app: automation
         context: sentinel
         version: v1
     spec:
