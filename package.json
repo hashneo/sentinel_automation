@@ -11,7 +11,7 @@
     "array.prototype.find": "^2.0.0",
     "bluebird": "^3.5.4",
     "body-parser": "^1.18.3",
-    "consul": "^0.34.1",
+    "consul": "^0.39.0",
     "cookie-parser": "^1.4.3",
     "deepmerge": "^2.2.1",
     "express": "^4.16.4",
