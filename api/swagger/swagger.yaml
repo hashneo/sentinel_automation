@@ -48,7 +48,7 @@ paths:
         default:
           $ref: '#/responses/Error'
 
-  /automation:
+  /:
       x-swagger-router-controller: automation
       get:
         operationId: getAutomations
@@ -86,7 +86,7 @@ paths:
             $ref: '#/responses/Error'
 
 
-  /automation/device/{id}:
+  /device/{id}:
       x-swagger-router-controller: devices
       get:
         operationId: getByDeviceId
@@ -124,7 +124,7 @@ paths:
           default:
             $ref: '#/responses/Error'
 
-  /automation/scenes:
+  /scenes:
       x-swagger-router-controller: scenes
       get:
         operationId: getScenes
@@ -161,7 +161,7 @@ paths:
           default:
             $ref: '#/responses/Error'
 
-  /automation/scenes/{id}:
+  /scenes/{id}:
       x-swagger-router-controller: scenes
       get:
         operationId: getSceneById
@@ -181,7 +181,7 @@ paths:
           default:
             $ref: '#/responses/Error'
 
-  /automation/scenes/{id}/run:
+  /scenes/{id}/run:
       x-swagger-router-controller: scenes
       get:
         operationId: runSceneById
