@@ -24,6 +24,7 @@ function messageHandler() {
         let data = JSON.parse(message);
 
         switch (pattern) {
+/*
             case 'sentinel.module.start':
             case 'sentinel.module.running':
                 switch ( data.name ){
@@ -34,7 +35,9 @@ function messageHandler() {
                         global.server = data;
                         break;
                 }
+
                 break;
+*/
             case 'sentinel.device.insert':
                 break;
 

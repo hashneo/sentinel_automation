@@ -63,6 +63,8 @@ consul.kv.get(`config/sentinel/${moduleName}`, function(err, result) {
     global.config = config;
     global.config.save();
 
+    global.auth = {'endpoint': `http://${process.env.SENTINEL_AUTHENTICATION_SERVICE_HOST}:${process.env.SENTINEL_AUTHENTICATION_SERVICE_PORT_HTTP}`};
+    global.server = {'endpoint': `http://${process.env.SENTINEL_APP_SERVICE_HOST}:${process.env.SENTINEL_APP_SERVICE_PORT_HTTP}`};
 
     if (process.env.DEBUG) {
         global.auth = {'endpoint': 'https://home.steventaylor.me'};
